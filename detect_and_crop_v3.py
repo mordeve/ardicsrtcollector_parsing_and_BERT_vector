@@ -7,6 +7,7 @@ from ardicsrtcollector.youtube_srt_mp3 import YoutubeSrtMp3
 parser = argparse.ArgumentParser(description="Process to find word in sound.")
 parser.add_argument('-f', '--file_dir', type=str, help='path of file.')
 parser.add_argument('-d', '--database_dir', type=str, help='path of database.')
+parser.add_argument('-ck', '--check_only', default=False, action='store_true', help='check existing files.')
 parser.add_argument('-a', '--all', default=False, action='store_true', help='search all words.')
 parser.add_argument('--max', type=int, default=0, help='max number of words')
 parser.add_argument('-w', '--word', type=str, help='searched word.')
@@ -27,7 +28,7 @@ def search_word(parser):
         exit(0)
 
     ## create file named with word
-    if not parser.all:
+    if not parser.all and not parser.check_only:
         try:
             os.mkdir("dataset/" + parser.word)
         except FileExistsError:
@@ -77,7 +78,10 @@ def search_word(parser):
                 soundFile = AudioSegment.from_mp3(dir_path + file_path.replace("~", ""))
             except:
                 check_server(vid_id)
-            finally:
+
+            if parser.check_only:
+                continue
+            else:
                 soundFile = AudioSegment.from_mp3(dir_path + file_path.replace("~", ""))
 
             name = file_path.split("/")[-1].split("/")[-1].split(".mp3")[0]
